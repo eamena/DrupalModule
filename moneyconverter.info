@@ -1,0 +1,4 @@
+name = "Money Converter"
+description = "This module will accept a decimal argument of US Dollars and will return the amount in BItCoin value. This process will be done by connecting into a third party API to convert the specific amount."
+core = "7.x"
+version = "7.x-1.0"

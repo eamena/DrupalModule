@@ -1,0 +1,144 @@
+<?php
+
+/**
+ * Implements hook_permission().
+ */
+function moneyconverter_permission() {
+  return array(
+    'submit moneyconverter' => array(
+      'title' => t('Submit moneyconverter'),
+      'description' => t('Submit the Money Converter form.'),
+    ),
+	'access moneyconverter submissions' => array(
+      'title' => t('Access moneyconverter submissions'),
+      'description' => t('Access the Money Converter submissions.'),
+    ),
+	'access moneyconverter rate' => array(
+      'title' => t('Access moneyconverter rate'),
+      'description' => t('Rate!!!'),
+    ),
+  );
+}
+/**
+ * Implements moneyconverter_init() to set up as home page. 
+ */
+function moneyconverter_init() {
+  // Since this file should only be loaded on the front page, it cannot be
+  // declared in the info file.
+  if (drupal_is_front_page()) {
+    drupal_add_css(drupal_get_path('module', 'moneyconverter'));
+  }
+}
+/**
+ * Implements hook_menu(). 
+ */
+function moneyconverter_menu(){
+	$items = array();
+	$items['moneyconverter'] = array(
+		'title' => 'Money Converter',
+		'type' => MENU_NORMAL_ITEM,
+		'access arguments' => array('submit moneyconverter'),
+		'page callback' => 'drupal_get_form',
+		'page arguments' => array('moneyconverter_form'),
+	);
+	$items['mc-sub'] = array(
+		'title' => 'My Form Submissions',
+		'type' => MENU_NORMAL_ITEM,
+		'access arguments' => array('access moneyconverter submissions'),
+		'page callback' => 'moneyconverter_form_submissions',
+	);
+	$items['mc-rate'] = array(
+		'title' => 'rate',
+		'type' => MENU_NORMAL_ITEM,
+		'access arguments' => array('access moneyconverter rate'),
+		'page callback' => 'moneyconverter_parse',
+	);
+	return $items;
+}
+/**
+ * Money Converter form
+ */
+ function moneyconverter_form($form, &$form_state){
+ 	$form['api'] = array(
+		'#type' => 'textarea',
+		'#title' => t('api'),
+		'#required' => TRUE,
+		'#description' =>t('Enter the API ID with URL'),
+	);
+	$form['inputvalue'] = array(
+		'#type' => 'textfield',
+		'#title' => t('Input Value'),
+		'#size' => 10,
+		'#maxlength' => 10,
+		'#required' => TRUE,
+		'#description' =>t('Please enter a valid number and round up'),
+	);	
+	$form['submit'] = array(
+		'#type' => 'submit',
+		'#value' => t('Submit'),
+	);
+	return $form;
+}
+/**
+ * Validation handler for the moneyconverter
+ */
+function moneyconverter_form_validate($form, &$form_state){
+	//print('<pre>'.print_r($form_state['values'],1).'</pre>');die();
+	if (!is_numeric($form_state['values']['inputvalue'])){
+		form_set_error('inputvalue', t('You must enter a valid number'));
+		return FALSE;
+	}
+	return TRUE;
+} 
+/**
+ * Submit handler for the moneyconverter_form. Inserts entry into the database
+ */
+ function moneyconverter_form_submit($form, &$form_state){
+	$mc_id = db_insert('moneyconverter')
+		->fields(array(
+			'api' => $form_state['values']['api'],
+			'inputvalue' => $form_state ['values']['inputvalue'],
+		))
+		->execute();
+	drupal_set_message(t('Your form entry has been added.'));
+}
+/**
+ * View all submissions
+ */
+ function moneyconverter_form_submissions(){
+	//$results = db_query("SELECT * FROM {moneyconverter}");
+	
+	$query = db_select('moneyconverter', 'mc');
+	$query
+		->fields('mc', array('mc_id', 'api', 'inputvalue'))
+		->range(0,50)
+		->orderBy('mc.mc_id');
+	$results = $query->execute();
+		
+	$header = array(t('ID'), t('API ID&URL'), t('Input Value'));
+	$rows = array();
+	
+	foreach($results AS $result){
+		$rows[] = array(
+			$result ->mc_id,
+			$result ->api,
+			$result ->inputvalue,
+		);
+	}
+	return theme ('table', array('header' => $header,'rows' => $rows)); 
+}
+/**
+ * Parsing text from BTC and making the calculation from the 
+ * inputvalue 
+ */
+ function moneyconverter_parse($form, &$form_state){
+	//$html = file_get_html('http://openexchangerates.org/api/latest.json?app_id=483e2ab4893b4cd8ac43f1d9e7124b5d');
+	$html = $api;
+	foreach($html->find('BTC') AS $element ){
+		echo $price;
+		$total= $valueinput/$price;
+		echo $total;
+	}
+	
+}
+ 

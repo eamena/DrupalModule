@@ -1,0 +1,34 @@
+<?php
+/**
+ * Implements hook_schema()
+ */
+ function moneyconverter_schema(){
+	$schema = array();
+	
+	$schema['moneyconverter'] = array(
+		'description' => 'Money Converter',
+		'fields' => array(
+			'mc_id' => array(
+			'description' => 'Identifier for table',
+			'type' => 'serial',
+			'unsigned' => TRUE,
+			'not null' => TRUE,			
+		 ),
+		 'api' => array(
+			'description' => 'API URL with ID',
+			'type' => 'text',
+			'not null' => TRUE,
+			),
+		'inputvalue'	=> array(
+			'description' => 'Value to be converter',
+			'type' => 'int',
+			'unsigned' => TRUE,
+			'not null' => TRUE,
+			'default' => 0, 
+			),
+		),
+				
+		'primary key' => array ('mc_id'),
+	);
+	return $schema;
+}
